@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private Map<Long, User> users = new HashMap<>();
 
@@ -24,45 +26,56 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
-        validate(user);
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        return user;
+        try {
+            validate(user);
+            user.setId(getNextId());
+            users.put(user.getId(), user);
+            log.info("Новый пользователь: {} Общее количество пользователей: {}", user, users.size());
+            return user;
+        } catch (RuntimeException e) {
+            log.warn(e.getMessage());
+            throw e;
+        }
     }
 
     @PutMapping
     public User update(@RequestBody User newUser) {
-        validate(newUser);
-        if (users.containsKey(newUser.getId())) {
-            User oldUser = users.get(newUser.getId());
-            oldUser = newUser;
-            return oldUser;
+        try {
+            validate(newUser);
+            if (users.containsKey(newUser.getId())) {
+                User oldUser = users.get(newUser.getId());
+                oldUser = newUser;
+                return oldUser;
+            }
+            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+        } catch (RuntimeException e) {
+            log.warn(e.getMessage());
+            throw e;
         }
-        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
     }
 
     private void validate(User user) {
         if (isEmailExists(user)) {
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new ValidationException("Электронная почта не может быть пустой");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Электронная поча должна содержать символ @");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            throw new ValidationException("Логин не может быть пустым");
-        }
+//        if (user.getEmail() == null || user.getEmail().isBlank()) {
+//            throw new ValidationException("Электронная почта не может быть пустой");
+//        }
+//        if (!user.getEmail().contains("@")) {
+//            throw new ValidationException("Электронная поча должна содержать символ @");
+//        }
+//        if (user.getLogin() == null || user.getLogin().isBlank()) {
+//            throw new ValidationException("Логин не может быть пустым");
+//        }
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
+//        if (user.getBirthday().isAfter(LocalDate.now())) {
+//            throw new ValidationException("Дата рождения не может быть в будущем");
+//        }
     }
 
     private long getNextId() {
