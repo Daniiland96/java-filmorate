@@ -17,6 +17,7 @@ public class User {
     private Long id;
 
     @Getter
+    @NotBlank
     @Email(message = "Электронная почта не может быть пустой и должна содержать символ @")
     private String email;
 
