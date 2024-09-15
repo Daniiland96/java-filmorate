@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,57 +23,23 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        try {
-            validate(user);
-            user.setId(getNextId());
-            users.put(user.getId(), user);
-            log.info("Новый пользователь: {} Общее количество пользователей: {}", user, users.size());
-            return user;
-        } catch (RuntimeException e) {
-            log.warn(e.getMessage());
-            throw e;
-        }
+    public User create(@Valid @RequestBody User user) {
+        isEmailExists(user);
+        user.setId(getNextId());
+        users.put(user.getId(), user);
+        log.info("Новый пользователь: {} Общее количество пользователей: {}", user, users.size());
+        return user;
     }
 
     @PutMapping
-    public User update(@RequestBody User newUser) {
-        try {
-            validate(newUser);
-            if (users.containsKey(newUser.getId())) {
-                User oldUser = users.get(newUser.getId());
-                oldUser = newUser;
-                return oldUser;
-            }
-            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
-        } catch (RuntimeException e) {
-            log.warn(e.getMessage());
-            throw e;
+    public User update(@Valid @RequestBody User newUser) {
+        isEmailExists(newUser);
+        if (users.containsKey(newUser.getId())) {
+            User oldUser = users.get(newUser.getId());
+            oldUser = newUser;
+            return oldUser;
         }
-    }
-
-    private void validate(User user) {
-        if (isEmailExists(user)) {
-            throw new DuplicatedDataException("Этот имейл уже используется");
-        }
-//        if (user.getEmail() == null || user.getEmail().isBlank()) {
-//            throw new ValidationException("Электронная почта не может быть пустой");
-//        }
-//        if (!user.getEmail().contains("@")) {
-//            throw new ValidationException("Электронная поча должна содержать символ @");
-//        }
-//        if (user.getLogin() == null || user.getLogin().isBlank()) {
-//            throw new ValidationException("Логин не может быть пустым");
-//        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-//        if (user.getBirthday().isAfter(LocalDate.now())) {
-//            throw new ValidationException("Дата рождения не может быть в будущем");
-//        }
+        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
     }
 
     private long getNextId() {
@@ -87,11 +51,16 @@ public class UserController {
         return ++currentMaxId;
     }
 
-    private boolean isEmailExists(User newUser) {
-        return users.values()
+    private void isEmailExists(User newUser) {
+        boolean result = users.values()
                 .stream()
                 .filter(user -> !(user.getId().equals(newUser.getId())))
                 .map(User::getEmail)
                 .anyMatch(email -> email.equals(newUser.getEmail()));
+        if (result) {
+            String message = "Этот имейл уже используется";
+            log.warn(message);
+            throw new DuplicatedDataException(message);
+        }
     }
 }
