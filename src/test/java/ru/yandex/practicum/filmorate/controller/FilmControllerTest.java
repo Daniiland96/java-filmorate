@@ -81,33 +81,6 @@ public class FilmControllerTest {
     }
 
     @Test
-    void filmControllerValidateTest() throws Exception {
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY);
-        this.mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.releaseDate").value(FilmController.MOVIE_BIRTHDAY.toString()));
-
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY.plusDays(1));
-        this.mvc.perform(put(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.releaseDate").value(FilmController.MOVIE_BIRTHDAY
-                        .plusDays(1).toString()));
-
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY.minusDays(1));
-        this.mvc.perform(put(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
-                )
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
     void emptyBodyRequestTest() throws Exception {
         this.mvc.perform(post(url))
                 .andExpect(status().isBadRequest());

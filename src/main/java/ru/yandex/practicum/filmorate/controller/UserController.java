@@ -16,6 +16,7 @@ import java.util.Map;
 @Slf4j
 public class UserController {
     private Map<Long, User> users = new HashMap<>();
+    private Long userId = 0L;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -25,7 +26,7 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         isEmailExists(user);
-        user.setId(getNextId());
+        user.setId(getUserId());
         users.put(user.getId(), user);
         log.info("Новый пользователь: {} Общее количество пользователей: {}", user, users.size());
         return user;
@@ -42,13 +43,12 @@ public class UserController {
         throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
     }
 
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    private Long getUserId() {
+        return ++userId;
+    }
+
+    private void resetUserId() {
+        userId = 0L;
     }
 
     private void isEmailExists(User newUser) {
