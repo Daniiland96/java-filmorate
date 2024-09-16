@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
@@ -18,100 +18,94 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FilmController.class)
+@WebMvcTest(UserController.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class FilmControllerTest {
+public class UserControllerTest {
 
     @Autowired
     private MockMvc mvc;
-    private Film film;
-    private final String url = "/films";
+    private User user;
+    private final String URL = "/users";
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        film = new Film(1L, "IT", "Children play with a red balloon",
-                LocalDate.of(2017, 9, 7), 135);
+        user = new User(1L, "ivan@yandex.ru", "Ivan123", "Ivan",
+                LocalDate.of(1996, 12, 3));
     }
 
     @Test
     void getTest() throws Exception {
-        this.mvc.perform(get(url))
+        this.mvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", empty()));
     }
 
     @Test
     void postTest() throws Exception {
-        this.mvc.perform(post(url)
+        this.mvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
+                        .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(film.getName()));
-        this.mvc.perform(get(url))
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
+        this.mvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
     void putTest() throws Exception {
-        this.mvc.perform(post(url)
+        this.mvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
+                        .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(film.getName()));
-        this.mvc.perform(get(url))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
 
-        String newName = "IT2";
-        film.setName(newName);
-        this.mvc.perform(put(url)
+        String newLogin = "Ivan321";
+        user.setLogin(newLogin);
+        this.mvc.perform(put(URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
+                        .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(newName));
-        this.mvc.perform(get(url))
+                .andExpect(jsonPath("$.login").value(newLogin));
+
+        this.mvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
-    void filmControllerValidateTest() throws Exception {
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY);
-        this.mvc.perform(post(url)
+    void duplicateEmailTest() throws Exception {
+        this.mvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
+                        .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.releaseDate").value(FilmController.MOVIE_BIRTHDAY.toString()));
-
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY.plusDays(1));
-        this.mvc.perform(put(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
-                )
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
+        this.mvc.perform(get(URL))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.releaseDate").value(FilmController.MOVIE_BIRTHDAY
-                        .plusDays(1).toString()));
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        film.setReleaseDate(FilmController.MOVIE_BIRTHDAY.minusDays(1));
-        this.mvc.perform(put(url)
+        user.setId(2L);
+        this.mvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film))
+                        .content(objectMapper.writeValueAsString(user))
                 )
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isConflict());
+        this.mvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
     void emptyBodyRequestTest() throws Exception {
-        this.mvc.perform(post(url))
+        this.mvc.perform(post(URL))
                 .andExpect(status().isBadRequest());
-        this.mvc.perform(put(url))
+        this.mvc.perform(put(URL))
                 .andExpect(status().isBadRequest());
     }
 }
