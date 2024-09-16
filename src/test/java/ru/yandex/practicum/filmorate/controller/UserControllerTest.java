@@ -25,7 +25,7 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mvc;
     private User user;
-    private final String URL = "/users";
+    private final String url = "/users";
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -37,27 +37,27 @@ public class UserControllerTest {
 
     @Test
     void getTest() throws Exception {
-        this.mvc.perform(get(URL))
+        this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", empty()));
     }
 
     @Test
     void postTest() throws Exception {
-        this.mvc.perform(post(URL)
+        this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(user.getEmail()));
-        this.mvc.perform(get(URL))
+        this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
     void putTest() throws Exception {
-        this.mvc.perform(post(URL)
+        this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
@@ -66,46 +66,46 @@ public class UserControllerTest {
 
         String newLogin = "Ivan321";
         user.setLogin(newLogin);
-        this.mvc.perform(put(URL)
+        this.mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value(newLogin));
 
-        this.mvc.perform(get(URL))
+        this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
     void duplicateEmailTest() throws Exception {
-        this.mvc.perform(post(URL)
+        this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(user.getEmail()));
-        this.mvc.perform(get(URL))
+        this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         user.setId(2L);
-        this.mvc.perform(post(URL)
+        this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isConflict());
-        this.mvc.perform(get(URL))
+        this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
     void emptyBodyRequestTest() throws Exception {
-        this.mvc.perform(post(URL))
+        this.mvc.perform(post(url))
                 .andExpect(status().isBadRequest());
-        this.mvc.perform(put(URL))
+        this.mvc.perform(put(url))
                 .andExpect(status().isBadRequest());
     }
 }
