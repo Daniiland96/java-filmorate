@@ -45,4 +45,8 @@ public class Film {
     public long getLikes() {
         return usersLikes.size();
     }
+
+    public void addLike(Long id){
+        usersLikes.add(id);
+    }
 }

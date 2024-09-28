@@ -4,12 +4,11 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -17,6 +16,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class FilmController {
     private FilmStorage filmStorage;
+    private FilmService filmService;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -36,5 +36,10 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public Film delete(@PathVariable Long id) {
         return filmStorage.delete(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        return filmService.addLike(id, userId);
     }
 }
