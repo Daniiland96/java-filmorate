@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -30,6 +31,7 @@ public class UserService {
         User friend = userStorage.findById(friendId);
         user.getFriends().add(friend.getId());
         friend.getFriends().add(user.getId());
+        log.info("Количество друзей: {}", user.getFriends().size());
         return user;
     }
 
@@ -39,12 +41,10 @@ public class UserService {
         }
         User user = userStorage.findById(userId);
         User friend = userStorage.findById(friendId);
-        if (user.getFriends().contains(friend.getId())) {
-            user.getFriends().remove(friend.getId());
-            friend.getFriends().remove(user.getId());
-            return user;
-        }
-        throw new NotFoundException("Друг с id = " + friend.getId() + " не найден");
+        user.getFriends().remove(friend.getId());
+        friend.getFriends().remove(user.getId());
+        log.info("Количество друзей: {}", user.getFriends().size());
+        return user;
     }
 
     public Collection<User> getCommonFriends(Long firstUserId, Long secondUserId) {

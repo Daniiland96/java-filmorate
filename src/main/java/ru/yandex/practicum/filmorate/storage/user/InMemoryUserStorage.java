@@ -4,14 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
     private long userId = 0;
 
@@ -22,9 +23,6 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User findById(Long id) {
-        if (id == null) {
-            throw new ValidationException("Укажите id пользователя");
-        }
         if (users.containsKey(id)) {
             return users.get(id);
         }
@@ -44,7 +42,9 @@ public class InMemoryUserStorage implements UserStorage{
     public User update(User user) {
         if (users.containsKey(user.getId())) {
             isEmailExists(user);
+            log.info("Старые данные о пользователе: {}", users.get(user.getId()));
             users.put(user.getId(), user);
+            log.info("Новые данные о пользователе: {}", users.get(user.getId()));
             return user;
         }
         throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
@@ -52,9 +52,6 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User delete(Long id) {
-        if (id == null) {
-            throw new ValidationException("Укажите id пользователя");
-        }
         if (users.containsKey(id)) {
             return users.remove(id);
         }
@@ -72,7 +69,7 @@ public class InMemoryUserStorage implements UserStorage{
     private void isEmailExists(User newUser) {
         boolean result = users.values()
                 .stream()
-                .filter(user -> !(user.getId().equals(newUser.getId())))
+                .filter(user -> !(user.getId() == newUser.getId()))
                 .map(User::getEmail)
                 .anyMatch(email -> email.equals(newUser.getEmail()));
         if (result) {

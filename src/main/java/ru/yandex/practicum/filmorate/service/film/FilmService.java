@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class FilmService {
@@ -20,6 +22,7 @@ public class FilmService {
         Film film = filmStorage.findById(filmId);
         User user = userStorage.findById(userId);
         film.getUsersLikes().add(user.getId());
+        log.info("Количество лайков: {}", film.getUsersLikes().size());
         return film;
     }
 
@@ -28,6 +31,7 @@ public class FilmService {
         User user = userStorage.findById(userId);
         if (film.getUsersLikes().contains(user.getId())) {
             film.getUsersLikes().remove(user.getId());
+            log.info("Количество лайков: {}", film.getUsersLikes().size());
             return film;
         }
         throw new NotFoundException("Лайк пользователя с id = " + user.getId() + " не найден");
@@ -39,4 +43,6 @@ public class FilmService {
                 .limit(count)
                 .toList();
     }
+
+
 }
