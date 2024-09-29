@@ -11,7 +11,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -31,8 +30,6 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
-    private FilmStorage filmStorage;
-    @MockBean
     private FilmService filmService;
     private Film film;
     private final String url = "/films";
@@ -47,7 +44,7 @@ public class FilmControllerTest {
 
     @Test
     void getTest() throws Exception {
-        when(filmStorage.findAll()).thenReturn(Collections.emptyList());
+        when(filmService.findAll()).thenReturn(Collections.emptyList());
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", empty()));
@@ -55,14 +52,14 @@ public class FilmControllerTest {
 
     @Test
     void postTest() throws Exception {
-        when(filmStorage.create(film)).thenReturn(film);
+        when(filmService.create(film)).thenReturn(film);
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(film.getName()));
-        when(filmStorage.findAll()).thenReturn(List.of(film));
+        when(filmService.findAll()).thenReturn(List.of(film));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
@@ -70,28 +67,28 @@ public class FilmControllerTest {
 
     @Test
     void putTest() throws Exception {
-        when(filmStorage.create(film)).thenReturn(film);
+        when(filmService.create(film)).thenReturn(film);
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(film.getName()));
-        when(filmStorage.findAll()).thenReturn(List.of(film));
+        when(filmService.findAll()).thenReturn(List.of(film));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         String newName = "IT2";
         film.setName(newName);
-        when(filmStorage.update(film)).thenReturn(film);
+        when(filmService.update(film)).thenReturn(film);
         this.mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(newName));
-        when(filmStorage.findAll()).thenReturn(List.of(film));
+        when(filmService.findAll()).thenReturn(List.of(film));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));

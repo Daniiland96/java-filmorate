@@ -9,11 +9,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -21,8 +19,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,8 +30,6 @@ public class UserControllerTest {
 
     @Autowired
     private MockMvc mvc;
-    @MockBean
-    private UserStorage userStorage;
     @MockBean
     private UserService userService;
     private User user;
@@ -51,7 +45,7 @@ public class UserControllerTest {
 
     @Test
     void getTest() throws Exception {
-        when(userStorage.findAll()).thenReturn(Collections.emptyList());
+        when(userService.findAll()).thenReturn(Collections.emptyList());
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", empty()));
@@ -59,14 +53,14 @@ public class UserControllerTest {
 
     @Test
     void postTest() throws Exception {
-        when(userStorage.create(user)).thenReturn(user);
+        when(userService.create(user)).thenReturn(user);
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(user.getEmail()));
-        when(userStorage.findAll()).thenReturn(List.of(user));
+        when(userService.findAll()).thenReturn(List.of(user));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
@@ -74,7 +68,7 @@ public class UserControllerTest {
 
     @Test
     void putTest() throws Exception {
-        when(userStorage.create(user)).thenReturn(user);
+        when(userService.create(user)).thenReturn(user);
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
@@ -84,7 +78,7 @@ public class UserControllerTest {
 
         String newLogin = "Ivan321";
         user.setLogin(newLogin);
-        when(userStorage.update(user)).thenReturn(user);
+        when(userService.update(user)).thenReturn(user);
         this.mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
@@ -92,7 +86,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value(newLogin));
 
-        when(userStorage.findAll()).thenReturn(List.of(user));
+        when(userService.findAll()).thenReturn(List.of(user));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
@@ -100,26 +94,26 @@ public class UserControllerTest {
 
     @Test
     void duplicateEmailTest() throws Exception {
-        when(userStorage.create(user)).thenReturn(user);
+        when(userService.create(user)).thenReturn(user);
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(user.getEmail()));
-        when(userStorage.findAll()).thenReturn(List.of(user));
+        when(userService.findAll()).thenReturn(List.of(user));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
         user.setId(2L);
-        when(userStorage.create(user)).thenThrow(new DuplicatedDataException("Этот имейл уже используется"));
+        when(userService.create(user)).thenThrow(new DuplicatedDataException("Этот имейл уже используется"));
         this.mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user))
                 )
                 .andExpect(status().isConflict());
-        when(userStorage.findAll()).thenReturn(List.of(user));
+        when(userService.findAll()).thenReturn(List.of(user));
         this.mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));

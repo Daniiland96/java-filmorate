@@ -58,4 +58,24 @@ public class UserService {
                 .map(id -> userStorage.findById(id))
                 .toList();
     }
+
+    public Collection<User> findAll() {
+        return userStorage.findAll();
+    }
+
+    public User findById(Long id) {
+        return userStorage.findById(id);
+    }
+
+    public User create(User user) {
+        return userStorage.create(user);
+    }
+
+    public User update(User user) {
+        return userStorage.update(user);
+    }
+
+    public User delete(Long id) {
+        return userStorage.delete(id);
+    }
 }

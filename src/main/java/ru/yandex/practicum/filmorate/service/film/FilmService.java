@@ -44,5 +44,23 @@ public class FilmService {
                 .toList();
     }
 
+    public Collection<Film> findAll() {
+        return filmStorage.findAll();
+    }
 
+    public Film findById(Long id) {
+        return filmStorage.findById(id);
+    }
+
+    public Film create(Film film) {
+        return filmStorage.create(film);
+    }
+
+    public Film update(Film film) {
+        return filmStorage.update(film);
+    }
+
+    public Film delete(Long id) {
+        return filmStorage.delete(id);
+    }
 }
