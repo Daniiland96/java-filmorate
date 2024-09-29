@@ -42,8 +42,8 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User update(User user) {
-        isEmailExists(user);
         if (users.containsKey(user.getId())) {
+            isEmailExists(user);
             users.put(user.getId(), user);
             return user;
         }

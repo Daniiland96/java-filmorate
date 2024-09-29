@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.yandex.practicum.filmorate.validator.FilmReleaseDateConstraint;
 
 import java.time.LocalDate;
@@ -31,7 +34,6 @@ public class Film {
     @Setter
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private long duration;
-
     private Set<Long> usersLikes = new HashSet<>();
 
     public Film(long id, String name, String description, LocalDate releaseDate, long duration) {
@@ -40,13 +42,5 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-    }
-
-    public long getLikes() {
-        return usersLikes.size();
-    }
-
-    public void addLike(Long id){
-        usersLikes.add(id);
     }
 }
