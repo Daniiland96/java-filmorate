@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -51,10 +53,11 @@ public class UserService {
         if (Objects.equals(firstUserId, secondUserId)) {
             throw new DuplicatedDataException("Id пользователей не должны совпадать");
         }
-        User user1 = userStorage.findById(firstUserId);
-        User user2 = userStorage.findById(secondUserId);
-        return user1.getFriends().stream()
-                .filter(id -> user2.getFriends().contains(id))
+        Set<Long> user1 = userStorage.findById(firstUserId).getFriends();
+        Set<Long> user2 = userStorage.findById(secondUserId).getFriends();
+        Set<Long> resultSet = new HashSet<>(user1);
+        resultSet.retainAll(user2);
+        return resultSet.stream()
                 .map(id -> userStorage.findById(id))
                 .toList();
     }

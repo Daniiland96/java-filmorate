@@ -29,8 +29,7 @@ public class FilmService {
     public Film deleteLike(Long filmId, Long userId) {
         Film film = filmStorage.findById(filmId);
         User user = userStorage.findById(userId);
-        if (film.getUsersLikes().contains(user.getId())) {
-            film.getUsersLikes().remove(user.getId());
+        if (film.getUsersLikes().remove(user.getId())) {
             log.info("Количество лайков: {}", film.getUsersLikes().size());
             return film;
         }

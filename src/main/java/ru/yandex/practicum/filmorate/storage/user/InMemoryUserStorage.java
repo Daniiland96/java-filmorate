@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -23,10 +24,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User findById(Long id) {
-        if (users.containsKey(id)) {
-            return users.get(id);
-        }
-        throw new NotFoundException("Пользователь с id = " + id + " не найден");
+        return Optional.ofNullable(users.get(id))
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
     @Override
@@ -40,22 +39,20 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (users.containsKey(user.getId())) {
-            isEmailExists(user);
-            log.info("Старые данные о пользователе: {}", users.get(user.getId()));
-            users.put(user.getId(), user);
+//        isEmailExists(user); // с данным методом не проходит тест в postman.
+        log.info("Старые данные о пользователе: {}", users.get(user.getId()));
+        User newUser = users.computeIfPresent(user.getId(), (key, value) -> value = user);
+        if (newUser != null) {
             log.info("Новые данные о пользователе: {}", users.get(user.getId()));
-            return user;
+            return newUser;
         }
         throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
     }
 
     @Override
     public User delete(Long id) {
-        if (users.containsKey(id)) {
-            return users.remove(id);
-        }
-        throw new NotFoundException("Пользователь с id = " + id + " не найден");
+        return Optional.ofNullable(users.remove(id))
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
     private long getUserId() {

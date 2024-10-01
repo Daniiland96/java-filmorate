@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -22,10 +23,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film findById(Long id) {
-        if (films.containsKey(id)) {
-            return films.get(id);
-        }
-        throw new NotFoundException("Фильм с id = " + id + " не найден");
+        return Optional.ofNullable(films.get(id))
+                .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
 
     @Override
@@ -38,21 +37,19 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (films.containsKey(film.getId())) {
-            log.info("Старые данные о фильме: {}", films.get(film.getId()));
-            films.put(film.getId(), film);
+        log.info("Старые данные о фильме: {}", films.get(film.getId()));
+        Film newFilm = films.computeIfPresent(film.getId(), (key, value) -> value = film);
+        if (newFilm != null) {
             log.info("Новые данные о фильме: {}", films.get(film.getId()));
-            return film;
+            return newFilm;
         }
         throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
     }
 
     @Override
     public Film delete(Long id) {
-        if (films.containsKey(id)) {
-            return films.remove(id);
-        }
-        throw new NotFoundException("Фильм с id = " + id + " не найден");
+        return Optional.ofNullable(films.remove(id))
+                .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
 
     private long getFilmId() {
