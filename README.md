@@ -1,7 +1,7 @@
 # java-filmorate
 Template repository for Filmorate project. 
 ### DataBase
-![Текст с описанием картинки](/src/main/resources/images/DB.png)
+![DBdiagram](/src/main/resources/images/DB.png)
 #### Описание:
 #### films
 Содержит данные о фильмах.
@@ -62,6 +62,27 @@ Template repository for Filmorate project.
 
 Примеры запросов:
 - Получить данные о всех фильмах:
-```SELECT * FROM film;```
-- Получить данные об одном фильме:
-```SELECT * FROM film WHERE film.id = 1;```
+```SELECT * FROM films;```
+- Получить данные о фильме по его id:
+```SELECT * FROM films WHERE films.id = 1;```
+- Получить данные о топ N популярных фильмах:
+```
+  SELECT f.name, COUNT(fl.user_liked_id) AS likes
+  FROM films AS f 
+  LEFT JOIN film_likes AS fl ON f.id = fl.film_id
+  GROUP BY f.id
+  ORDER BY likes DESC LIMIT N; 
+```
+- Получить данные о пользователе по его id:
+```SELECT * FROM users WHERE users.id = 1;```
+- Получить данные об общих друзьях пользователей:
+```
+SELECT friend_id
+FROM user_friends
+WHERE user_id = 1
+AND status_id = 1
+AND (SELECT friend_id
+     FROM user_friends
+     WHERE user_id = 2
+     AND status_id = 1 ) = friend_id;
+```
