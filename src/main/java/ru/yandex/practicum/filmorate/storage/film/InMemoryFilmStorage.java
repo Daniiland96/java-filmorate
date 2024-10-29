@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Component
+
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private Map<Long, Film> films = new HashMap<>();
@@ -60,3 +61,4 @@ public class InMemoryFilmStorage implements FilmStorage {
         filmId = 0;
     }
 }
+*/
