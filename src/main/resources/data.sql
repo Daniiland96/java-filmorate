@@ -1,56 +1,56 @@
-INSERT INTO rating_MPA (mpa_name)
-SELECT 'G'
-WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE mpa_name = 'G'
+insert into rating_MPA (mpa_name)
+select 'G'
+where not exists (
+    select 1 from rating_MPA where mpa_name = 'G'
 );
-INSERT INTO rating_MPA (mpa_name)
-SELECT 'PG'
-WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE mpa_name = 'PG'
+insert into rating_MPA (mpa_name)
+select 'PG'
+where not exists (
+    select 1 from rating_MPA where mpa_name = 'PG'
 );
-INSERT INTO rating_MPA (mpa_name)
-SELECT 'PG-13'
-WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE mpa_name = 'PG-13'
+insert into rating_MPA (mpa_name)
+select 'PG-13'
+where not exists (
+    select 1 from rating_MPA where mpa_name = 'PG-13'
 );
-INSERT INTO rating_MPA (mpa_name)
-SELECT 'R'
-WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE mpa_name = 'R'
+insert into rating_MPA (mpa_name)
+select 'R'
+where not exists (
+    select 1 from rating_MPA where mpa_name = 'R'
 );
-INSERT INTO rating_MPA (mpa_name)
-SELECT 'NC-17'
-WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE mpa_name = 'NC-17'
+insert into rating_MPA (mpa_name)
+select 'NC-17'
+where not exists (
+    select 1 from rating_MPA where mpa_name = 'NC-17'
 );
 
-INSERT INTO GENRES (name)
-SELECT 'Комедия'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Комедия'
+insert into GENRES (name)
+select 'Комедия'
+where not exists (
+    select 1 from GENRES where NAME = 'Комедия'
 );
-INSERT INTO GENRES (name)
-SELECT 'Драма'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Драма'
+insert into GENRES (name)
+select 'Драма'
+where not exists (
+    select 1 from GENRES where NAME = 'Драма'
 );
-INSERT INTO GENRES (name)
-SELECT 'Мультфильм'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Мультфильм'
+insert into GENRES (name)
+select 'Мультфильм'
+where not exists (
+    select 1 from GENRES where NAME = 'Мультфильм'
 );
-INSERT INTO GENRES (name)
-SELECT 'Триллер'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Триллер'
+insert into GENRES (name)
+select 'Триллер'
+where not exists (
+    select 1 from GENRES where NAME = 'Триллер'
 );
-INSERT INTO GENRES (name)
-SELECT 'Документальный'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Документальный'
+insert into GENRES (name)
+select 'Документальный'
+where not exists (
+    select 1 from GENRES where NAME = 'Документальный'
 );
-INSERT INTO GENRES (name)
-SELECT 'Боевик'
-WHERE NOT EXISTS (
-    SELECT 1 FROM GENRES WHERE NAME = 'Боевик'
+insert into GENRES (name)
+select 'Боевик'
+where not exists (
+    select 1 from GENRES where NAME = 'Боевик'
 );

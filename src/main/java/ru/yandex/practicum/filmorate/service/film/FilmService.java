@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.LikeDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
@@ -14,12 +13,8 @@ import java.util.Collection;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final LikeDbStorage likeDbStorage;
-    private final MpaService mpaService;
-    private final GenreService genreService;
-
 
     public Film addLike(Long filmId, Long userId) {
         likeDbStorage.addLike(filmId, userId);
@@ -32,7 +27,7 @@ public class FilmService {
     }
 
     public Collection<Film> getPopularFilm(Long count) {
-       return filmStorage.getPopularFilms(count);
+        return filmStorage.getPopularFilms(count);
     }
 
     public Collection<Film> findAll() {

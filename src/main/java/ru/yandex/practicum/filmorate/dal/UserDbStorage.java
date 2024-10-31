@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -99,7 +98,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     @Override
     public User delete(Long id) {
         User user = findById(id);
-        friendDbStorage.deleteAllUserFriends(id);
+        if (!user.getFriends().isEmpty()) friendDbStorage.deleteAllUserFriends(id);
         update(DELETE_QUERY, id);
         return user;
     }

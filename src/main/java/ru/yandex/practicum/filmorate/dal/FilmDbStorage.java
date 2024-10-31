@@ -31,8 +31,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, MpaDbStorage mpaDbStorage
-            , GenreDbStorage genreDbStorage, LikeDbStorage likeDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, MpaDbStorage mpaDbStorage,
+                         GenreDbStorage genreDbStorage, LikeDbStorage likeDbStorage) {
         super(jdbc, mapper, Film.class);
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
@@ -103,7 +103,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     public Film delete(Long id) {
         Film film = findById(id);
         genreDbStorage.deleteGenres(id);
-        likeDbStorage.deleteAllFilmLikes(id);
+        if (!film.getUsersLikes().isEmpty()) likeDbStorage.deleteAllFilmLikes(id);
         update(DELETE_QUERY, id);
         return film;
     }

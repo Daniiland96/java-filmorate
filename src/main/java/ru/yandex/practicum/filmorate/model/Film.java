@@ -3,11 +3,17 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.FilmReleaseDateConstraint;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -29,24 +35,4 @@ public class Film {
     private Mpa mpa;
     private Set<Genre> genres = new LinkedHashSet<>();
     private Collection<Long> usersLikes = new ArrayList<>();
-
-//    public Film(long id, String name, String description, LocalDate releaseDate, long duration, Mpa mpa
-//            , Set<Genre> genres) {
-//        this.id = id;
-//        this.name = name;
-//        this.description = description;
-//        this.releaseDate = releaseDate;
-//        this.duration = duration;
-//        this.mpa = mpa;
-//        this.genres = genres;
-//    }
-//
-//    public Film(long id, String name, String description, LocalDate releaseDate, long duration, Mpa mpa) {
-//        this.id = id;
-//        this.name = name;
-//        this.description = description;
-//        this.releaseDate = releaseDate;
-//        this.duration = duration;
-//        this.mpa = mpa;
-//    }
 }
