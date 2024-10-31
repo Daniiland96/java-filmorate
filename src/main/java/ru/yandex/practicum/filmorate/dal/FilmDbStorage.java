@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -12,40 +11,64 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
-    @Autowired
     private MpaDbStorage mpaDbStorage;
-    @Autowired
     private GenreDbStorage genreDbStorage;
+    private LikeDbStorage likeDbStorage;
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id) " +
             "VALUES (?, ?, ?, ?, ?)";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films f, rating_mpa m " +
+            "WHERE f.rating_id = m.mpa_id AND f.id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM films f, rating_mpa m " +
+            "WHERE f.rating_id = m.mpa_id";
+    private static final String FIND_POPULAR_FILMS_QUERY = "SELECT * FROM films f LEFT JOIN rating_mpa m " +
+            "ON f.id = m.mpa_id LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes FROM film_likes GROUP BY film_id) fl " +
+            "ON f.id = fl.film_id ORDER BY likes DESC LIMIT ?";
+    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, " +
+            "release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, MpaDbStorage mpaDbStorage
+            , GenreDbStorage genreDbStorage, LikeDbStorage likeDbStorage) {
         super(jdbc, mapper, Film.class);
+        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
+        this.likeDbStorage = likeDbStorage;
     }
 
     @Override
     public Collection<Film> findAll() {
-//        return films.values();
-        return null;
+        Collection<Film> films = findMany(FIND_ALL_QUERY);
+        Map<Long, Set<Genre>> genres = genreDbStorage.findAllFilmsGenres();
+        Map<Long, Collection<Long>> likes = likeDbStorage.findAllFilmsLikes();
+        for (Film film : films) {
+            if (genres.containsKey(film.getId())) {
+                film.setGenres(genres.get(film.getId()));
+            }
+            if (likes.containsKey(film.getId())) {
+                film.setUsersLikes(likes.get(film.getId()));
+            }
+        }
+        return films;
     }
 
     @Override
     public Film findById(Long id) {
-//        findOne()
-        return null;
+        Film film = findOne(FIND_BY_ID_QUERY, id)
+                .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
+        film.setGenres(new HashSet<>(genreDbStorage.findByFilmId(id)));
+        film.setUsersLikes(likeDbStorage.getFilmLikes(id));
+        return film;
     }
 
     @Override
     public Film create(Film film) {
         Mpa mpa = mpaDbStorage.findById(film.getMpa().getId())
                 .orElseThrow(() -> new ValidationException("Указанный Mpa не существует."));
-        List<Genre> genres = genreDbStorage.findMany(film.getGenres());
+        Collection<Genre> genres = genreDbStorage.findManyByList(film.getGenres());
         long id = insert(
                 INSERT_QUERY,
                 film.getName(),
@@ -63,19 +86,41 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-//        log.info("Старые данные о фильме: {}", films.get(film.getId()));
-//        Film newFilm = films.computeIfPresent(film.getId(), (key, value) -> value = film);
-//        if (newFilm != null) {
-//            log.info("Новые данные о фильме: {}", films.get(film.getId()));
-//            return newFilm;
-//        }
-        throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
+        mpaDbStorage.findById(film.getMpa().getId());
+        update(
+                UPDATE_QUERY,
+                film.getName(),
+                film.getDescription(),
+                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
+                film.getDuration(),
+                film.getMpa().getId(),
+                film.getId()
+        );
+        return findById(film.getId());
     }
 
     @Override
     public Film delete(Long id) {
-//        return Optional.ofNullable(films.remove(id))
-//                .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
-        return null;
+        Film film = findById(id);
+        genreDbStorage.deleteGenres(id);
+        likeDbStorage.deleteAllFilmLikes(id);
+        update(DELETE_QUERY, id);
+        return film;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(Long count) {
+        Collection<Film> films = findMany(FIND_POPULAR_FILMS_QUERY, count);
+        Map<Long, Set<Genre>> genres = genreDbStorage.findAllFilmsGenres();
+        Map<Long, Collection<Long>> likes = likeDbStorage.findAllFilmsLikes();
+        for (Film film : films) {
+            if (genres.containsKey(film.getId())) {
+                film.setGenres(genres.get(film.getId()));
+            }
+            if (likes.containsKey(film.getId())) {
+                film.setUsersLikes(likes.get(film.getId()));
+            }
+        }
+        return films;
     }
 }

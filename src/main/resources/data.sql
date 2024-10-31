@@ -1,27 +1,27 @@
-INSERT INTO rating_MPA (name)
+INSERT INTO rating_MPA (mpa_name)
 SELECT 'G'
 WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE NAME = 'G'
+    SELECT 1 FROM rating_MPA WHERE mpa_name = 'G'
 );
-INSERT INTO rating_MPA (name)
+INSERT INTO rating_MPA (mpa_name)
 SELECT 'PG'
 WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE NAME = 'PG'
+    SELECT 1 FROM rating_MPA WHERE mpa_name = 'PG'
 );
-INSERT INTO rating_MPA (name)
+INSERT INTO rating_MPA (mpa_name)
 SELECT 'PG-13'
 WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE NAME = 'PG-13'
+    SELECT 1 FROM rating_MPA WHERE mpa_name = 'PG-13'
 );
-INSERT INTO rating_MPA (name)
+INSERT INTO rating_MPA (mpa_name)
 SELECT 'R'
 WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE NAME = 'R'
+    SELECT 1 FROM rating_MPA WHERE mpa_name = 'R'
 );
-INSERT INTO rating_MPA (name)
+INSERT INTO rating_MPA (mpa_name)
 SELECT 'NC-17'
 WHERE NOT EXISTS (
-    SELECT 1 FROM rating_MPA WHERE NAME = 'NC-17'
+    SELECT 1 FROM rating_MPA WHERE mpa_name = 'NC-17'
 );
 
 INSERT INTO GENRES (name)
