@@ -50,9 +50,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
         Collection<User> users = findMany(FIND_ALL_QUERY);
         Map<Long, Set<Long>> friends = friendDbStorage.getAllFriendsId();
         for (User user : users) {
-            if (friends.containsKey(user.getId())) {
-                user.setFriends(friends.get(user.getId()));
-            }
+            user.setFriends(friends.getOrDefault(user.getId(), new HashSet<>()));
         }
         return users;
     }

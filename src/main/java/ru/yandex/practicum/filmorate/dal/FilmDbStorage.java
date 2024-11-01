@@ -45,12 +45,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         Map<Long, Set<Genre>> genres = genreDbStorage.findAllFilmsGenres();
         Map<Long, Collection<Long>> likes = likeDbStorage.findAllFilmsLikes();
         for (Film film : films) {
-            if (genres.containsKey(film.getId())) {
-                film.setGenres(genres.get(film.getId()));
-            }
-            if (likes.containsKey(film.getId())) {
-                film.setUsersLikes(likes.get(film.getId()));
-            }
+            film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
+            film.setUsersLikes(likes.getOrDefault(film.getId(), new ArrayList<>()));
         }
         return films;
     }
@@ -114,12 +110,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         Map<Long, Set<Genre>> genres = genreDbStorage.findAllFilmsGenres();
         Map<Long, Collection<Long>> likes = likeDbStorage.findAllFilmsLikes();
         for (Film film : films) {
-            if (genres.containsKey(film.getId())) {
-                film.setGenres(genres.get(film.getId()));
-            }
-            if (likes.containsKey(film.getId())) {
-                film.setUsersLikes(likes.get(film.getId()));
-            }
+            film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
+            film.setUsersLikes(likes.getOrDefault(film.getId(), new ArrayList<>()));
         }
         return films;
     }
