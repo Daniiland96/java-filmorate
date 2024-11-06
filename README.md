@@ -10,8 +10,8 @@ Template repository for Filmorate project.
 - id - id фильма в формате bigint.
 - name - название фильма в формате varchar.
 - description - описание фильма в формате varchar.
-- releaseDate - дата выхода фильма в формате date.
-- duration - длительность фильма в формате interval.
+- releaseDate - дата выхода фильма в формате timestamp.
+- duration - длительность фильма в формате bigint.
 - rating_id - id рейтинга фильма в формате integer.
 #### film_likes
 Содержит id пользователей, которым понравился фильм.
@@ -25,7 +25,7 @@ Template repository for Filmorate project.
 Таблица включает такие поля:
 - film_id - id фильма в формате bigint.
 - genre_id - id жанра в формате integer.
-#### genre
+#### genres
 Содержит названия жанров. 
 
 Таблица включает такие поля:
@@ -35,8 +35,8 @@ Template repository for Filmorate project.
 Содержит названия рейтингов по стандарту MPA.
 
 Таблица включает такие поля:
-- id - id рейтинга в формате integer.
-- name - название жанра в формате varchar.
+- mpa_id - id рейтинга в формате integer.
+- mpa_name - название жанра в формате varchar.
 #### users
 Содержит данные о пользователях.
 
@@ -45,20 +45,13 @@ Template repository for Filmorate project.
 - email - электронная почта пользователя в формате varchar.
 - login - логин пользователя в формате varchar.
 - name - имя пользователя в формате varchar.
-- birthday - день рождения пользователя в формате date.
+- birthday - день рождения пользователя в формате timestamp.
 #### user_friends
 Содержит id друзей пользователей.
 
 Таблица включает такие поля:
 - user_id - id пользователя в формате bigint.
 - friend_id - id друзей пользователя в формате bigint.
-- status_id - id статуса добавления нового друга в формате integer.
-#### friendship_status 
-Содержит статусы добавления новых друзей.
-
-Таблица включает такие поля:
-- status_id - id статуса в формате integer.
-- status - название статуса в формате boolean.
 
 Примеры запросов:
 - Получить данные о всех фильмах:
@@ -75,14 +68,3 @@ Template repository for Filmorate project.
 ```
 - Получить данные о пользователе по его id:
 ```SELECT * FROM users WHERE users.id = 1;```
-- Получить данные об общих друзьях пользователей:
-```
-SELECT friend_id
-FROM user_friends
-WHERE user_id = 1
-AND status_id = 1
-AND (SELECT friend_id
-     FROM user_friends
-     WHERE user_id = 2
-     AND status_id = 1 ) = friend_id;
-```
